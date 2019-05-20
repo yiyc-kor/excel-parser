@@ -6,10 +6,10 @@ import openpyxl
 
 def compare_data(main_data, sub_data):
     wb = openpyxl.Workbook()
-    ws1 = wb.create_sheet("대표질문", 0)
-    ws2 = wb.create_sheet("질문", 1)
-    ws3 = wb.create_sheet("매칭 안된 대표질문", 2)
-    ws4 = wb.create_sheet("매칭 안된 질문", 3)
+    ws1 = wb.create_sheet("사용자 의도", 0)
+    ws2 = wb.create_sheet("사용자 예상질문", 1)
+    ws3 = wb.create_sheet("매칭 안된 사용자 의도", 2)
+    ws4 = wb.create_sheet("매칭 안된 사용자 예상질문", 3)
 
     ws1_count = 0
     ws2_count = 0
@@ -41,7 +41,7 @@ def compare_data(main_data, sub_data):
         ws4_count += 1
         ws4['A' + str(ws4_count)] = ""
 
-    wb.save("test.xlsx")
+    wb.save("test2.xlsx")
     print("Sorted Count: " + str(ws1_count))
 
 
@@ -65,13 +65,15 @@ def extract_data(excel_path):
     ws2 = wb.worksheets[1]
 
     w2_data = dict()
-
+    count = 0
     for r in ws2.rows:
+        count += 1
         try:
             r0 = r[0].value.upper()
             r1 = r[1].value.upper()
-        except AttributeError:
-            break;
+        except AttributeError as e:
+            print(e)
+            continue;
 
         if r0 in w2_data:
             w2_data[r0].append(r1)
@@ -80,7 +82,7 @@ def extract_data(excel_path):
 
     for k, v in w2_data.items():
         w2_data[k] = list(set(w2_data[k]))
-
+    print(count)
     return w2_data
 
 
@@ -88,7 +90,7 @@ def main():
     parser = argparse.ArgumentParser(description="Crawling Data Analyzer")
 
     # I&O file
-    parser.add_argument('--excel_path', dest="excel_path", type=str, default="./data/data.xlsx",
+    parser.add_argument('--excel_path', dest="excel_path", type=str, default="./data/data2.xlsx",
                         help="Input file path")
 
     args = parser.parse_args()
