@@ -5,31 +5,29 @@ import re
 
 
 def parse_list(code_list, item_list):
-    g = open(output_path, 'w', encoding="utf-8")
-
-    with open(input_path, 'r', encoding="utf-8") as f:
-        for line in f.readlines():
-            sp = line.split(',', 1)
-            sp[1] = sp[1][1:]
-            sp[1] = sp[1].replace("\"", "\"\"")
-
-            sp[1] = "\"" + sp[1].strip() + "\"\n"
-            # print(sp[1])
-            g.write(sp[0] + "," + sp[1])
+    whole_zip = zip(code_list, item_list)
+    for i, line in enumerate(whole_zip):
+        item = line[1]
+        item = re.sub(r'[^A-Za-z0-9\-]', ' ', item)
+        item = ' '.join(x.strip('-') for x in item.split())
+        item = ' '.join(x for x in item.split() if len(x) > 1)
+        if item == '':
+            whole_zip.pop(i)
+    print(whole_zip)
 
 
 def check_csv(input_path):
     code_list = []
     item_list = []
+    p = re.compile('[^A-Za-z0-9\-\/\(\)\&\"\.\<\>\:\;\'\=\*\%×\@\?\#＃ ？]')
     with open(input_path, 'r', encoding="utf-8") as f:
         for i, line in enumerate(f):
             sp = line.split(',')
             code = sp[0]
             item = ' '.join(sp[1:])
             item = item.strip().strip('\"')
-            p = re.compile('[^A-Za-z0-9\-\/\(\)\&\"\.\<\>\:\;\'\=\*\%× ？]')
-            if p.search(item) is not None:
-                print("##### " + str(i) + "\t" + "wired character detected:\t" + item)
+            # if p.search(item) is not None:
+            #     print("##### " + str(i) + "\t" + "wired character detected:\t" + item)
             code_list.append(code)
             item_list.append(item)
     return code_list, item_list
@@ -49,7 +47,7 @@ def main():
 
     code_list, item_list = check_csv(flags.input_path)
 
-    # parse_list(code_list, item_list)
+    parse_list(code_list, item_list)
 
 
 if __name__ == '__main__':
